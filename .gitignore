@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 凭据（绝不入库）
+.env
+.env.*
+*.neo4j_cred.json
+*_key
+
+# 抓取产物（体积大、可重跑）
+data_en/
+data_zh/
+data_ar/
+corpus/data_*/
+*.jsonl
+*.log
+
+# 编辑器 / 系统
+.DS_Store
+.vscode/
