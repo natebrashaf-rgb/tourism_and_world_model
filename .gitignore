@@ -11,11 +11,11 @@ venv/
 *_key
 
 # 抓取产物与实验中间件（体积大、可重跑）
-data_v2/
+data_v2*/
 data_test/
 *.jsonl
 *.log
-validate_corpus.txt
+validate_corpus*.txt
 exp/*.parquet
 exp/windows/
 exp/results*.csv

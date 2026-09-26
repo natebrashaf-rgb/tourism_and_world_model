@@ -24,6 +24,20 @@ GATE_TITLE_NONEMPTY = 1.00    # 题名非空
 GATE_CONCEPT_COVERAGE = 0.80  # keywords ∪ topics 覆盖
 GATE_ID_DUP = 0               # id 重复
 
+# 严格文旅词（只保留"一眼是文旅"的核心词）。用于估算主题精度：
+# 词表里的宽泛词（文化 / ثقاف / culture / travel）会把非文旅文献带进来，
+# 命中宽泛词的记录未必真是文旅，命中严格词的则基本可信。
+# 这是"报告项"，不是 PLAN 的门禁项。
+STRICT_TERMS = {
+    "en": ["tourism", "tourist", "hospitality", "cultural heritage",
+           "cultural tourism", "destination", "pilgrimage", "eco-tourism",
+           "intangible heritage", "museum"],
+    "zh": ["旅游", "文旅", "旅游业", "文化旅游", "遗产旅游", "生态旅游",
+           "乡村旅游", "博物馆", "非物质文化遗产"],
+    "ar": ["السياحة", "سياحة", "سياحي", "سياحية", "السياحي", "سياح",
+           "الضيافة", "ضيافة", "المتاحف", "متحف"],
+}
+
 
 def load_jsonl(path):
     """返回 (记录列表, 重复 id 次数)。坏行跳过并计数。"""
@@ -123,6 +137,20 @@ def check_lang(lang, data_dir):
             lang, "[通过]" if ok else "[未过]", name, got))
         allpass = allpass and ok
     lines.append("[%s] 结论：%s" % (lang, "全部门禁通过" if allpass else "有门禁未过"))
+
+    # 报告项（非门禁）：严格文旅词命中率 + 抽样标题，供人工抽检
+    strict = STRICT_TERMS.get(lang, [])
+    s_hit = sum(1 for r in recs
+                if any(t.lower() in ((r.get("title") or "") + " " + (r.get("abstract") or "")).lower()
+                       for t in strict))
+    lines.append("[%s] 报告项：严格文旅词命中 %.1f%%（%d/%d）——非门禁，用于估主题精度"
+                 % (lang, 100.0 * s_hit / float(n), s_hit, n))
+    lines.append("[%s] 抽样标题（每 %d 条取 1 条，共 12 条，供人工抽检）："
+                 % (lang, max(1, n // 12)))
+    step = max(1, n // 12)
+    for r in recs[::step][:12]:
+        lines.append("[%s]   %s | %s" % (lang, r.get("year"),
+                                         (r.get("title") or "")[:78]))
     return lines, allpass, n
 
 
