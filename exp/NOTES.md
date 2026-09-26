@@ -61,19 +61,19 @@ OpenAlex 从本机 IP 发起的一切请求都返回 429：`/works`、`/topics`�
 
 ### 收窄词表（`--wordlist strict`）
 去掉过宽单字词，只保留真·文旅词；英文只留单 token。
-运行：`fetch_tourism_ml.py --wordlist strict --out-dir data_v2_strict`
+`--wordlist full` 写入 `data/raw/`，`--wordlist strict` 写入 `data/clean/`（两库说明见 `data/README.md`）。
 
 ## 三、抓取结果（2026-09-26）
 
 命令：`--year-from 2010 --year-to 2025 --transport jina`，年份上限 ar=2000 / zh=800 / en=3000。
 
-| 语种 | 全量词表（data_v2/） | 收窄词表（data_v2_strict/） | 收窄后严格词命中 |
+| 语种 | 全量词表（`data/raw/`） | 收窄词表（`data/clean/`） | 收窄后严格词命中 |
 |---|---|---|---|
 | en | 6,000（**未跑完**，只到 2011） | **47,882** | **97.6%** |
 | zh | 12,799 | **8,018** | 88.4% |
 | ar | 27,199 | **2,744** | **100.0%** |
 
-## 四、门禁结果（`validate_corpus.py --data-dir data_v2_strict`）
+## 四、门禁结果（`validate_corpus.py --data-dir data/clean`，默认即此）
 
 | 门禁 | en | zh | ar |
 |---|---|---|---|
@@ -113,11 +113,12 @@ Day2 建概念面板只能靠 keywords（英文 topics 正常，可用）。
 ## 六、目录现状
 
 ```
-data_v2/{ar,zh,en}/works.jsonl          全量词表结果（EN 未跑完，可 --resume 续跑）
-data_v2_strict/{ar,zh,en}/works.jsonl   收窄词表结果（推荐使用）
-data_v2_strict/en/works_短语版词表.bak.jsonl   短语版英文语料，留作精度对照证据
+data/raw/{ar,zh,en}/works.jsonl          全量词表结果（en 未跑完，可 --resume 续跑）
+data/clean/{ar,zh,en}/works.jsonl        收窄词表结果（推荐使用）
+data/_archive/en_短语版词表.bak.jsonl     短语版英文语料，留作精度对照证据
 exp/fetch_all.log / fetch_strict.log / fetch_strict_en2.log   抓取日志
-exp/validate_corpus_strict.txt          门禁验收输出
+exp/validate_corpus_clean.txt / validate_corpus_raw.txt       门禁验收输出
 ```
 
-`data_v2*` 全部在 `.gitignore` 内，不入库。
+`data/` 下除 `data/README.md` 之外全部在 `.gitignore` 内，不入库。
+两库对照与取舍见 `data/README.md`。

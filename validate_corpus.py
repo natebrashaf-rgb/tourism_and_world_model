@@ -158,7 +158,8 @@ def main():
     ap = argparse.ArgumentParser(description="语料验收（PLAN.md 门禁）")
     ap.add_argument("langs", nargs="*", default=None,
                     help="语种，默认 en zh ar")
-    ap.add_argument("--data-dir", default="data_v2")
+    ap.add_argument("--data-dir", default="data/clean",
+                    help="语料根目录；raw=全量词表库，clean=收窄词表库（默认）")
     ap.add_argument("--out", default="validate_corpus.txt")
     args = ap.parse_args()
 

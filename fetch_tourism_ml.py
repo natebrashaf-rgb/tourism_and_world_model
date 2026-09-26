@@ -275,7 +275,6 @@ def main():
     ap.add_argument("--year-from", type=int, default=2010)
     ap.add_argument("--year-to", type=int, default=2025)
     ap.add_argument("--per-year", type=int, default=0, help="每年上限, 0=不截断")
-    ap.add_argument("--out-dir", default="data_v2")
     ap.add_argument("--delay", type=float, default=None)
     ap.add_argument("--resume", action="store_true",
                     help="已存在的 id 跳过(按年文件已写则跳年)")
@@ -283,10 +282,14 @@ def main():
                     help="direct=直连 OpenAlex；jina=经 r.jina.ai 中转换出口 IP")
     ap.add_argument("--wordlist", choices=["full", "strict"], default="full",
                     help="full=PLAN.md 原词表；strict=收窄词表（去掉过宽单字词）")
+    ap.add_argument("--out-dir", default=None,
+                    help="输出根目录；默认按词表自动选 data/raw 或 data/clean")
     args = ap.parse_args()
 
     lang = args.lang
-    out_root = os.path.join(args.out_dir, lang)
+    # data/ 下分两库：raw = 全量词表，clean = 收窄词表（见 data/README.md）
+    out_dir = args.out_dir or ("data/clean" if args.wordlist == "strict" else "data/raw")
+    out_root = os.path.join(out_dir, lang)
     os.makedirs(out_root, exist_ok=True)
     out_path = os.path.join(out_root, "works.jsonl")
 
@@ -297,7 +300,7 @@ def main():
     print(f"lang={lang} years={args.year_from}-{args.year_to} "
           f"per_year={args.per_year or 'ALL'} client={key_src} "
           f"transport={args.transport} wordlist={args.wordlist}"
-          f"({len(wordlists[lang])} 词)", flush=True)
+          f"({len(wordlists[lang])} 词) -> {out_path}", flush=True)
 
     # 已抓 id：支持跨次续跑
     seen_ids = set()
